@@ -1,0 +1,25 @@
+@name FailCake Ads
+@outputs Text:string Message:string I Speed
+@persist 
+@trigger all
+runOnTick(1)
+ 
+Message = " --- Welcome to my Shop! --- "
+Speed = 2
+
+timer("add",Speed*100)
+
+if(clk("add"))
+{
+
+I+=1
+Text+=Message:index(I)
+
+if(I >= Message:length()){
+  
+I = 0
+Text = ""    
+
+}
+
+}

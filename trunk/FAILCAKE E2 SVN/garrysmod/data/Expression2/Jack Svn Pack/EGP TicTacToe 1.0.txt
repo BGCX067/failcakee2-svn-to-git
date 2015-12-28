@@ -1,0 +1,214 @@
+@name Tic Tac Toe Game [Jack]
+@inputs EGP:wirelink 
+@persist [P1 P2]:entity Pos:table [Xcolor Ocolor]:vector Turn:string 
+@persist Connected Index LL LR SX SO
+@trigger
+
+if(first() | dupefinished())
+{
+##### SETTINGS #####
+Connected = 4
+Xcolor = vec(255,0,0)
+Ocolor = vec(0,0,255)
+##### SETTINGS #####
+    runOnTick(1)
+    runOnChat(1)
+    EGP:egpClear()
+    EGP:egpText(1,"X",vec2(20,20))
+    EGP:egpText(2,"O",vec2(452,20))
+    for(I = 0,10) {EGP:egpLine(I+3,vec2(I*35+81,0),vec2(I*35+81,455))}
+    for(I = 0,13) {EGP:egpLine(I+14,vec2(81,I*35),vec2(431,I*35))}
+    EGP:egpText(28,"Press USE key on side to become player",vec2(20,465))
+    EGP:egpText(29,"",vec2(20,20))
+    EGP:egpFont(28,"arial",30)
+    EGP:egpFont(29,"arial",30)
+    EGP:egpFont(1,"arial",60)
+    EGP:egpFont(2,"arial",60)
+    EGP:egpColor(1,Xcolor)
+    EGP:egpColor(2,Ocolor)
+    EGP:egpColor(28,vec(0,255,0))
+    EGP:egpColor(29,vec(0,255,0))
+    Turn = "X"
+    Index = LI = 29
+    LL = LR = 90
+    SX = SO = 0
+}
+
+if(!P1 | !P2)
+{
+    for(I = 1,players():count())
+    {
+        P = players()[I,entity]
+        Use = P:keyUse()
+        Aim = EGP:egpCursor(P)
+        if(changed(Use) & Use & inrange(Aim,vec2(0,0),vec2(81,512)) & !P1 & P != P2)
+        {
+            P1 = P 
+            EGP:egpText(28,P1:name(),vec2(10,465))
+            EGP:egpColor(28,Xcolor)
+            if(!P2) {EGP:egpText(29,"Press USE key",vec2(256,465))}
+            break
+        }
+        if(changed(Use) & Use & inrange(Aim,vec2(431,0),vec2(512,512)) & !P2 & P != P1)
+        {
+            P2 = P 
+            EGP:egpText(29,P2:name(),vec2(256,465))
+            EGP:egpColor(29,Ocolor)
+            if(!P1) {EGP:egpText(28,"Press USE key",vec2(10,465))}
+            break
+        }
+    }
+}
+else
+{
+    if(Turn == "X")
+    {
+        Aim = EGP:egpCursor(P1)
+        Use = P1:keyUse()
+    }
+    else
+    {
+        Aim = EGP:egpCursor(P2)
+        Use = P2:keyUse() 
+    }
+    
+    if(changed(Use) & Use) 
+    {
+        if(inrange(round(Aim),vec2(81,0),vec2(431,455)))   
+        {
+            X = floor((Aim:x()-81)/35+1)
+            Y = floor(Aim:y()/35+1)
+            if(!Pos[X+","+Y,string])
+            {
+                Pos[X+","+Y,string] = Turn
+                Index++
+                LI = Index
+            
+                PosCenter = vec2((X-1)*35+81+10,(Y-1)*35+5)
+                EGP:egpText(Index,Turn,PosCenter)
+                EGP:egpFont(Index,"Arial",30)
+                C = 0
+                Xmin = Xmax = X
+                Ymin = Ymax = Y
+                
+                while(Xmin > 1 & Ymin > 1)
+                {
+                    Xmin--
+                    Ymin--
+                }
+                while(Xmax < 10 & Ymax < 13)
+                {
+                    Xmax++
+                    Ymax++
+                }
+                
+                for(I = 0,Xmax-1)
+                {
+                    if(Pos[Xmin+I+","+(Ymin+I),string]:find(Turn) & !Pos[Xmin+I+","+(Ymin+I),string]:find("/"))
+                    {C++ XX=Xmin+I-C+1 YY=Ymin+I-C+1}else{C = 0}
+                    if(C==Connected)
+                    {
+                    Index++
+                    Pos[XX+","+YY,string] = Pos[XX+","+YY,string] + "/"
+                    Pos[(XX+C-1)+","+(YY+C-1),string] = Pos[(XX+C-1)+","+(YY+C-1),string] + "/"
+                    EGP:egpLine(Index,vec2((XX-1)*35+81,(YY-1)*35),vec2((XX+C-1)*35+81,(YY+C-1)*35))
+                    C = 0
+                    Index++
+                            if(Turn == "X")
+                        {LL+=15 EGP:egpCircle(Index,vec2(40,LL),vec2(10,10)) SX++
+                            EGP:egpColor(Index,randvec(0,255))}
+                        else{LR+=15 EGP:egpCircle(Index,vec2(472,LR),vec2(10,10)) SO++
+                            EGP:egpColor(Index,randvec(0,255))}
+                    }
+                }
+                
+                Xmin = Xmax = X
+                Ymin = Ymax = Y
+                
+                while(Xmin > 1 & Ymin < 13)
+                {
+                    Xmin--
+                    Ymin++
+                }
+                while(Xmax < 10 & Ymax > 1)
+                {
+                    Xmax++
+                    Ymax--
+                }
+                
+                for(I = 0,Xmax-1)
+                {
+                    if(Pos[Xmin+I+","+(Ymin-I),string]:find(Turn) & !Pos[Xmin+I+","+(Ymin-I),string]:find("-"))
+                    {C++ XX=Xmin+I-C+1 YY=Ymin-I+C-1}else{C = 0}
+                    if(C==Connected)
+                    {
+                    Index++
+                    Pos[XX+","+YY,string] = Pos[XX+","+YY,string] + "-"
+                    Pos[(XX+C-1)+","+(YY-C+1),string] = Pos[(XX+C-1)+","+(YY-C+1),string] + "-"
+                    EGP:egpLine(Index,vec2((XX-1)*35+81,YY*35),vec2((XX+C-1)*35+81,(YY-C)*35))
+                    C = 0
+                    Index++
+                            if(Turn == "X")
+                        {LL+=15 EGP:egpCircle(Index,vec2(40,LL),vec2(10,10)) SX++
+                            EGP:egpColor(Index,randvec(0,255))}
+                        else{LR+=15 EGP:egpCircle(Index,vec2(472,LR),vec2(10,10)) SO++
+                            EGP:egpColor(Index,randvec(0,255))}
+                    }
+                }
+                
+                for(I = 1,10)
+                {
+                    if(!Pos[I+","+Y,string]:find("x") & Pos[I+","+Y,string]:find(Turn))
+                    {C++ XX=I-C+1}else{C = 0}
+                    if(C==Connected)
+                    {
+                        Index++
+                        EGP:egpLine(Index,vec2((XX-1)*35+81,(Y-1)*35+20),vec2((XX+C-1)*35+81,(Y-1)*35+20))
+                        Pos[XX+","+Y,string] = "x"+Turn+Pos[XX+","+Y,string]
+                        Pos[(XX+C-1)+","+Y,string] = "x"+Turn+Pos[(XX+C-1)+","+Y,string]
+                        C = 0
+                        Index++
+                        if(Turn == "X")
+                        {LL+=15 EGP:egpCircle(Index,vec2(40,LL),vec2(10,10)) SX++
+                            EGP:egpColor(Index,randvec(0,255))}
+                        else{LR+=15 EGP:egpCircle(Index,vec2(472,LR),vec2(10,10)) SO++
+                            EGP:egpColor(Index,randvec(0,255))}
+                    }
+                }
+                
+                for(I = 1,13)
+                {
+                    if(!Pos[X+","+I,string]:find("y") & Pos[X+","+I,string]:find(Turn))
+                    {C++ YY=I-C+1}else{C = 0}
+                    if(C==Connected)
+                    {
+                        Index++
+                        EGP:egpLine(Index,vec2((X-1)*35+81+19,(YY-1)*35),vec2((X-1)*35+81+19,(YY+C-1)*35))
+                        Pos[X+","+YY,string] = "y"+Turn+Pos[X+","+YY,string]
+                        Pos[X+","+(YY+C-1),string] = "y"+Turn+Pos[X+","+(YY+C-1),string]
+                        C = 0
+                        Index++
+                        if(Turn == "X")
+                        {LL+=15 EGP:egpCircle(Index,vec2(40,LL),vec2(10,10)) SX++
+                            EGP:egpColor(Index,randvec(0,255))}
+                        else{LR+=15 EGP:egpCircle(Index,vec2(472,LR),vec2(10,10)) SO++
+                            EGP:egpColor(Index,randvec(0,255))}
+                    }
+                }
+                
+                
+                if(Turn == "X") {EGP:egpColor(LI,Xcolor) Turn = "O" EGP:egpColor(28,Xcolor-vec(155,0,0)) EGP:egpColor(29,Ocolor)}
+                else{EGP:egpColor(LI,Ocolor) Turn = "X" EGP:egpColor(28,Xcolor) EGP:egpColor(29,Ocolor-vec(0,0,155))}
+                
+                if(SX > SO) {EGP:egpFont(1,"arial",80) EGP:egpFont(2,"arial",60)}
+                elseif(SO > SX) {EGP:egpFont(1,"arial",60) EGP:egpFont(2,"arial",80)}
+                else {EGP:egpFont(1,"arial",60) EGP:egpFont(2,"arial",60)}
+            }
+        }
+    }
+}
+
+if(chatClk(owner()))
+{
+    if(lastSaid():lower() == "/reset") {hideChat(1) reset()}
+}

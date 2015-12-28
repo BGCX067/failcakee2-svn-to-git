@@ -1,0 +1,122 @@
+@name FailCake Zombie4Run
+@inputs 
+@outputs Start Count TotalZombies Timeout O I I2 S2 S1 S Add
+@persist Players:array Zombies:array I O I2 I3 S2 S Plyx:entity Ply:entity Add
+@trigger all
+@model models/Gibs/HGIBS.mdl
+
+if(first()){
+runOnTick(1)
+runOnChat(1)
+hint("Made By FailCake",7)  
+O = 1  
+Add = 1
+Players = players()
+Count = Players:count()
+}
+
+Move=array()
+Move:setString(1,"npc/zombie/zombie_voice_idle1.wav")
+Move:setString(2,"npc/zombie/zombie_voice_idle2.wav")
+Move:setString(3,"npc/zombie/zombie_voice_idle3.wav")
+Move:setString(4,"npc/zombie/zombie_voice_idle4.wav")
+Move:setString(5,"npc/zombie/zombie_voice_idle5.wav")
+Move:setString(6,"npc/zombie/zombie_voice_idle6.wav")
+Move:setString(7,"npc/zombie/zombie_voice_idle7.wav")
+Move:setString(8,"npc/zombie/zombie_voice_idle8.wav")
+Move:setString(9,"npc/zombie/zombie_voice_idle9.wav")
+Move:setString(10,"npc/zombie/zombie_voice_idle10.wav")
+Move:setString(11,"npc/zombie/zombie_voice_idle11.wav")
+Move:setString(12,"npc/zombie/zombie_voice_idle12.wav")
+Move:setString(13,"npc/zombie/zombie_voice_idle13.wav")
+Move:setString(14,"npc/zombie/zombie_voice_idle14.wav")
+
+if(chatClk(owner()))
+{
+    if(lastSaid():lower() == "/start")
+    {
+        hideChat(1)
+        Start = 1
+        RandomPlayer = randint(1,Count)
+        Zombies[1,entity]=Players[RandomPlayer,entity]
+        hint("The Zombie Master is : "+Zombies[1,entity]:name() + " !",7)
+        concmd("say The Zombie Master is : " +Zombies[1,entity]:name()+ " !" )
+    }elseif(lastSaid():lower() == "/check")
+    {
+        hideChat(1)
+       hint("Total Zombies Are :"+Zombies:count(),7) 
+    }
+}
+
+
+if(Start){   
+
+if(Zombies[1,entity]:health() <= 0 & Zombies:count() <= 1){
+    hint("The Zombie Master has Died!",7) 
+    hint("No Infections!",7) 
+    concmd("say The Zombie Master has Died!")
+    Start = 0
+}   
+
+
+timer("graa",3000)
+if(clk("graa")){
+for(P=0,Zombies:count()){
+Ran = randint(1,14)
+holoEntity(P):soundPlay(10+P,9999,Move:string(Ran)) 
+}
+}
+ 
+for(I = 1,Zombies:count())
+{
+Ply = Zombies[I,entity]
+
+if(Timeout == 0 & Ply:weapon():type() == "weapon_crowbar" & Ply:keyAttack1())
+{
+    Plyx = Ply:aimEntity()
+    if(Ply:pos():distance(Plyx:pos()) <= 80)
+    {
+        for(I3 = 1,Zombies:count())
+        {
+            if(Zombies[I3,entity] != Plyx & Add)
+            {Add = 1}
+            else
+            {Add = 0}
+        }
+        
+        if(Add)
+        {
+            hint("Zombie Added",7)
+            Zombies:pushEntity(Ply:aimEntity())
+            Timeout = 1
+        }
+    }
+}
+}   
+
+
+if(Timeout == 1){
+timer("Rest",1000)
+if(clk("Rest")){
+Timeout = 0
+Add = 1
+hint("Tim",2)    
+}    
+}
+
+
+for(I2 = 1,Zombies:count()){
+holoCreate(I2)
+holoModel(I2,"cube")
+holoPos(I2,Zombies[I2,entity]:pos() + vec(0,0,100))
+holoColor(I2,vec(255,0,0))
+holoParent(I2,Zombies[I2,entity])   
+}
+}
+
+
+if(duped()){selfDestructAll()}
+
+####################################################################
+## Do not rename the E2 or remove the hint("Made by Failcake",100)##
+####################################################################

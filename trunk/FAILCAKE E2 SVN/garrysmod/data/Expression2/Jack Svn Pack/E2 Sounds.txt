@@ -1,0 +1,19 @@
+@name E2 what else
+interval(2000)
+
+entity():setColor(0,0,0,0)
+owner():soundPlay(1,1,"ambient/voices/f_scream1.wav")
+#owner():soundPlay(1,1,"vo/heavy_sandwichtaunt04.wav")
+#owner():soundPlay(1,1,"vo/coast/barn/female01/youmadeit.wav")
+#owner():soundPlay(1,1,"buttons/button19.wav")
+#owner():soundPlay(1,1,"buttons/button14.wav")
+#owner():soundPlay(1,1,"buttons/button10.wav")
+#owner():soundPlay(1,1,"buttons/button15.wav")
+#owner():soundPlay(1,1,"vo/citadel/br_laugh01.wav")
+#owner():soundPlay(1,1,"ambient/water/drip1.wav")
+#owner():soundPlay(1,1,"ambient/water/drip2.wav")
+#owner():soundPlay(1,1,"ambient/water/drip3.wav")
+#owner():soundPlay(1,1," ui/buttonclick.wav")
+
+soundPitch(1,40)
+

@@ -1,0 +1,7 @@
+@name Smoother
+@outputs Hydraulic
+@persist A
+
+interval(20)
+if(A > Hydraulic) {Hydraulic += 0.02 * 100}
+if(Hydraulic > A) {Hydraulic -= 0.02 * 100}

@@ -1,0 +1,9 @@
+@name Auto - Flashlight
+@inputs 
+@outputs 
+@persist 
+@trigger 
+runOnTick(1)
+
+concmd("impulse 100")
+

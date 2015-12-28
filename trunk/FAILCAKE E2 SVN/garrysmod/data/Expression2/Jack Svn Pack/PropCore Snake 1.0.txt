@@ -1,0 +1,153 @@
+@name PropCore Snake [Jack]
+@inputs Pod:wirelink
+@persist [Squares Pos Snake]:array Dir:string Food:vector2
+@persist Size Index X Y Done Half Speed SpeedTemp Active
+@trigger 
+
+if(first() | dupefinished())
+{
+######## SETTINGS ########
+#Total blocks of game board (will be increased to create perfect square)
+    Size = 64
+#Move snake every 'Speed' milliseconds (400 default)
+    Speed = 400 
+######## SETTINGS ########
+    
+    runOnTick(1)
+    runOnLast(1) 
+    propSpawnEffect(0)
+    SpeedTemp = Speed
+    Index = 0
+    Done = 0
+    Half = ceil(sqrt(Size))
+    
+    for(X = 1,Half)
+    {
+        for(Z = 1,Half)
+        {
+            Pos:pushVector(entity():toWorld(vec(X*3.5,0,Z*3.5) + vec(0,0,40)))
+        }
+    }
+    
+    Snake[1,vector2] = vec2(floor(Half/2),floor(Half/2))
+    Snake[2,vector2] = vec2(floor(Half/2)-1,floor(Half/2))
+    Dir = "right"
+}
+
+if(Squares:count() < Half^2)
+{
+    timer("spawn",1000/4)
+    if(clk("spawn"))
+    {
+        Index++
+        Squares:pushEntity(propSpawn("models/hunter/plates/plate.mdl",Pos[Index,vector],1))
+    }
+}
+elseif(changed(Squares:count()) & Squares:count() >= Half^2)
+{Done = 1}
+
+if(Done){
+Active = Pod["Active",number]
+if(Active)
+{
+    timer("move",Speed)
+    W = Pod["W",number]
+    S = Pod["S",number]
+    A = Pod["A",number]
+    D = Pod["D",number]
+    
+    if(changed(W) & W & Dir != "up" & Dir != "down")
+    {Dir = "up"}
+    elseif(changed(S) & S & Dir != "up" & Dir != "down")
+    {Dir = "down"}
+    elseif(changed(A) & A & Dir != "left" & Dir != "right")
+    {Dir = "left"}
+    elseif(changed(D) & D & Dir != "left" & Dir != "right")
+    {Dir = "right"}
+    
+    if(clk("move"))
+    {
+    if(Dir == "up") {X--}
+    elseif(Dir == "down") {X++}
+    elseif(Dir == "left") {Y--}
+    elseif(Dir == "right") {Y++}
+    
+    if(X > Half) {X = 1}
+    elseif(X < 1) {X = Half}
+    if(Y > Half) {Y = 1}
+    elseif(Y < 1) {Y = Half}
+    
+    for(I = Snake:count(),1,-1)
+    {
+        if(I != Snake:count() & I != 1)
+        {
+            if(Snake[I,vector2] == Snake[1,vector2])
+            {            
+                Pod["Entity",entity]:hintDriver("You lose with " + toString(Snake:count()-2) + " points!",7)
+                Pod["Entity",entity]:ejectPod()
+            }
+            Snake[I,vector2] = Snake[I-1,vector2]
+        }
+        elseif(I == 1)
+        {
+            if(Snake:count() == 2)
+            {
+                Index = Half*Snake[1,vector2]:y()-(Snake[1,vector2]:x()-1)
+                Squares[Index,entity]:setColor(vec(255,255,255))
+            }
+            Snake[1,vector2] = vec2(X,Y)
+            Index = Half*Snake[1,vector2]:y()-(Snake[1,vector2]:x()-1)
+            Squares[Index,entity]:setColor(vec(255,0,0))
+        }    
+        elseif(I == Snake:count())
+        {
+            Snake[I,vector2] = Snake[I-1,vector2]
+            Index = Half*Snake[I,vector2]:y()-(Snake[I,vector2]:x()-1)
+            Squares[Index,entity]:setColor(vec(255,255,255))
+        }
+    }
+    }
+     
+    timer("food",Half^2*100)
+    if(clk("food"))
+    {
+        Index = Half*Food:y()-(Food:x()-1)
+        Squares[Index,entity]:setColor(vec(255,255,255))
+        Food = round(randvec2(0,Half))
+        Index = Half*Food:y()-(Food:x()-1)
+        Squares[Index,entity]:setColor(vec(0,255,0))
+    }
+
+    if(Snake[1,vector2] == Food)
+    {
+        Index = Half*Snake[Snake:count(),vector2]:y()-(Snake[Snake:count(),vector2]:x()-1)
+        Squares[Index,entity]:setColor(vec(255,0,0))   
+        Food = vec2(-1,-1)
+        Snake:pushVector2(Food)
+    }
+    
+    if(changed(Snake:count()) & ((Snake:count()-1) == 5 | 
+    (Snake:count()-1) == 10 |
+    (Snake:count()-1) == 15 |
+    (Snake:count()-1) == 20))
+    {Speed -= 50}
+}
+elseif($Active==-1 & !Active)
+{
+    for(I = 1,Squares:count())
+    {
+        Squares[I,entity]:setColor(255,255,255)
+    }
+    Snake = array()
+    Food = vec2(-1,-1)
+    Speed = SpeedTemp
+    Index = 0
+    Snake[1,vector2] = vec2(floor(Half/2),floor(Half/2))
+    Snake[2,vector2] = vec2(floor(Half/2)-1,floor(Half/2))
+    Dir = "right"
+}
+}
+if(last())
+{
+    Squares:propDelete()
+}

@@ -1,0 +1,54 @@
+@name EKG
+@inputs Kill On
+@outputs X Y Length
+@persist Timer Timer2
+@trigger 
+interval(500)
+
+if(first()) {X=-1 Y=0 Length=40 Timer=0 Timer2=0}
+
+if(On)
+{
+timer("addX",50)
+if(clk("addX"))
+{X+=0.01}
+if(X==1) {X=-1} 
+
+Timer++
+if(Timer==4&!Timer2)
+{
+Y=0.3
+}
+if(Timer==7&!Timer2)
+{
+Y=-0.4
+soundPlay(1,1,"synth/square.wav")
+}
+if(Timer==10&!Timer2)
+{
+Y=0
+soundStop(1)
+}
+if(Timer==30&!Timer2)
+{
+Timer=0
+}
+
+if(Kill&~Kill|Timer2>0)
+{
+Timer2++
+}
+
+if(Timer2>0)
+{
+soundPlay(1,1,"synth/square.wav")
+Timer=0
+Y=0
+}
+
+if(Timer2>300)
+{
+Timer2=0
+soundStop(1)
+}
+} else {stoptimer("addX") Timer=0 Timer2=0}

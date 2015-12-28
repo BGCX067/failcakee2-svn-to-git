@@ -1,0 +1,15 @@
+@name Failcake HoloModelAny Detector
+@trigger all
+
+holoCreate(5)
+holoModel(5,"models/props_junk/PopCan01a.mdl")
+holoScaleUnits(5,vec(1,1,1))
+holoParent(5,E)
+
+if(holoEntity(5):model() != "models/Holograms/cube.mdl"){
+printColor(vec(0,255,0),"HoloModelAny Detected!")  
+selfDestructAll()
+}else{
+printColor(vec(255,0,0),"HoloModelAny Not Detected!")
+selfDestructAll()  
+}

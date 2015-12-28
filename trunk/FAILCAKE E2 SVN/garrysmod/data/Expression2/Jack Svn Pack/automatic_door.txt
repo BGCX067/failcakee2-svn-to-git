@@ -1,0 +1,33 @@
+@name Automatic Door v2.0 by Jack
+@outputs Hydraulic Player
+@persist Door Play
+
+## -- VALUES -- ##
+Opened=2
+Closed=48
+Distance=200
+TimeToClose=2000
+Sound=0
+## -- VALUES -- ##
+
+
+interval(20)
+if(Door > Hydraulic) {Hydraulic += 0.02 * 50}
+if(Hydraulic > Door) {Hydraulic -= 0.02 * 50}
+
+Player=findInSphere(entity():pos(),Distance)
+findIncludeClass("player")
+findIncludeClass("prop")
+findExcludePlayerProps(owner())
+
+if(Player) {Door=Opened}
+if(!Player&Hydraulic==Opened) {timer("Close",TimeToClose)} 
+    else {stoptimer("Close")}
+if(clk("Close")) {Door=Closed} 
+
+if(Sound)
+{
+if(Hydraulic>Opened&Hydraulic<Closed) {Play=1} else {Play=0}
+if(Play&$Play) {soundPlay(1,1,"plats/elevator_move_loop1.wav")}
+if(!Play) {soundStop(1)}
+}

@@ -1,0 +1,39 @@
+@name Rot13
+@inputs Text:string Rotate
+@outputs Coded:string 
+@persist Chars:string
+@trigger
+
+if(first())
+{
+    Chars = "abcdefghijklmnopqrstuvwxyz"
+}
+
+if(Rotate & ~Rotate & Text:trim() != "")
+{
+    if(Coded:trim() == "" | changed(Text)) {Coded = Text}
+    CodedArray = Coded:explode("")
+    
+    for(I = 1,CodedArray:count())
+    {
+        OldChar = CodedArray[I,string]
+        
+        if(OldChar != " ")
+        {
+            if(Chars:find(OldChar:lower())) 
+            {
+                NewChar = Chars:find(OldChar:lower()) + 13 
+                if(NewChar > 26) {NewChar -= 26}
+                if(OldChar == OldChar:upper())
+                {
+                    CodedArray[I,string] = Chars:index(NewChar):upper()
+                }
+                else
+                {
+                    CodedArray[I,string] = Chars:index(NewChar)   
+                }
+            }
+        }
+    }
+    Coded = CodedArray:concat()
+}

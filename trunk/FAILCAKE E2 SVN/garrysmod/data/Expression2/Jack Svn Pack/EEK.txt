@@ -1,0 +1,6 @@
+@persist Eeked
+
+runOnTick(1)
+if(!owner():isAlive()&!Eeked) {owner():soundPlay(1,0,"ambient/voices/f_scream1.wav") Eeked = 1}
+if(owner():isAlive()) {Eeked = 0}
+

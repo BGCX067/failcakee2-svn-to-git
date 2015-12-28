@@ -1,0 +1,125 @@
+@name FailCake E2 Finder
+@outputs Count Dist Col Go Refresh Cre
+@persist [E2]:array
+@trigger all
+runOnTick(1)
+
+E = entity()
+O = owner()
+
+
+if(first()){
+hint("Made By FailCake",7)    
+findExcludeEntity(E)
+findByClass("gmod_wire_expression2")   
+E2 = findToArray()
+Count = E2:count()
+hint("* Total E2 Found = "+Count+" *",7)
+Refresh = 0
+
+if(Count > 0){
+
+for(I=1,Count){
+holoCreate(I)
+holoModel(I,"hqcylinder")
+holoScaleUnits(I,vec(5,5,0.4))    
+holoPos(I,E:pos() + vec(1,1,1))
+holoAlpha(I,150)
+
+}
+
+if(I >= Count){
+Go = 1   
+print("* E2 Detecting Ready *") 
+}
+    
+}
+
+}
+
+
+
+
+
+
+if(Go){
+timer("refresh",500)
+
+if(clk("refresh") & Refresh == 0){
+    
+findExcludeEntity(E)
+findByClass("gmod_wire_expression2")   
+E2 = findToArray()
+   
+if(E2:count() != Count){
+Refresh = 1
+O:soundPlay(100,100,"buttons/combine_button1.wav")
+}
+
+} 
+   
+if(Refresh){
+    
+for(I3 = 1,Count){
+    
+holoDelete(I3)
+holoCreate(I3)
+holoModel(I3,"hqcylinder")
+holoScaleUnits(3,vec(5,5,0.4))    
+holoPos(I3,E:pos() + vec(1,1,1))
+holoAlpha(I3,150)
+
+if(I3 >= Count){
+Refresh = 0 
+Count = E2:count() 
+}
+}
+
+} 
+
+if(Refresh == 0){
+for(I = 1,Count){
+
+B=O:bearing(E2[I,entity]:pos())
+EL=O:elevation(E2[I,entity]:pos())
+Vec = O:toWorld(vec(50*cos(-B),50*sin(-B),cos(EL)*40))
+Ang = ((E2[I,entity]:pos()-holoEntity(I):pos()):toAngle()+ang(90,0,0))
+
+Dist = holoEntity(I):pos():distance(E2[I,entity]:pos())
+
+holoPos(I,Vec)
+holoAng(I,Ang)
+
+if(Dist >= 40){
+if(Dist <= 900){
+holoScaleUnits(I,vec(Dist/35,Dist/35,0.4))
+if(Dist >= 255){
+Col = 255
+}else{
+Col = Dist
+}
+
+if(Col <= 0){
+Col = 0
+}
+
+
+if(Dist <= 150){
+holoColor(I,vec(0,255,0)) 
+}else{
+holoColor(I,vec(Col*2,-Col/2,0))
+}
+
+}else{
+holoScaleUnits(I,vec(20,20,0.4)) 
+holoColor(I,vec(255,0,0))
+}  
+}
+
+}
+}
+}
+
+if(duped()){
+selfDestructAll()    
+}
